@@ -1,0 +1,145 @@
+Tu es un développeur Full-Stack expert spécialisé dans la création d’applications web robustes, sécurisées et professionnelles. Mon objectif est de développer de A à Z une application web complète nommée **unicef**, destinée à collecter des dons financiers pour lutter contre la famine au Cameroun et en Afrique subsaharienne..
+L’application doit être prête à être exécutée localement sous WampServer.
+Et aussi si tu vois un point cles essentiels que j'ai oublies tu peux ajouter . 
+Cela doit aussi contenir des images je prefere ceux des enfants malheureux pas en joie qui va pousser les donateurs a compatir
+Le site est sombre de base .
+ARCHITECTURE GÉNÉRALE
+Le site comporte deux espaces distincts :
+1. PAGE UTILISATEUR (publique)
+2. PAGE ADMIN (protégée, accessible uniquement par URL directe — ne jamais afficher de lien vers l'admin sur la page publique)
+I. PAGE UTILISATEUR — FONCTIONNALITÉS
+A. NAVIGATION
+- Accueil
+- Nos réalisations
+- Faire un don
+- Nous contacter
+B. SECTION HÉROS (Accueil)
+Afficher une bannière impactantee avec :
+- Titre principal accrocheur sur la cause
+- Projet en cours mis en avant 
+- Bloc de transparence financière (visible en permanence) :
+  * Montant total collecté
+  * Objectif fixé (modifiable par l'admin)
+  * Nombre de donateurs
+  * Pourcentage atteint
+  * Barre de progression animée
+C. RÉALISATIONS — IMPACT EN AFRIQUE
+Afficher une section "Nos réalisations dans d'autres pays" avec minimum 10 pays africains. Pour chaque pays, indiquer le nombre de personnes ayant déjà bénéficié de l'aide (minimum 130 000 personnes par pays). Avec des images pour chaque pays …
+Exemples :
+- Côte d'Ivoire : 130 000 personnes aidées
+- Niger : 200 000 personnes aidées
+- Mali, Burkina Faso, Tchad, Sénégal, RDC, Éthiopie, Soudan du Sud, Madagascar... (compléter jusqu'à minimum 10 pays)
+Afficher sous forme de cartes ou tableau visuellement attrayant.
+Donc une image, en dessous nom du pays et puis description…
+D. PARTAGE SOCIAL
+Ajouter la mention : "Partage pour aider même sans donner"
+Boutons avec icone(logo) de partage vers : WhatsApp, Facebook, Telegram, TikTok
+Le lien du site est : https:// unicef.zya.me
+E. FORMULAIRE DE DON (don.php sur une autre page)
+Étape 1 — Choix du type de donateur :
+- Don anonyme → afficher uniquement le champ "Montant"
+- Don identifié → afficher : Nom, Prénom, Pays, Ville, Téléphone (optionnel), Email (optionnel), Montant
+Étape 2 — Choix de la méthode de paiement :
+Option A : Paiement mobile (via API AshTechPay — voir documentation fournie en fichier .txt)
+Option B : Virement par carte bancaire
+  → Afficher UNIQUEMENT si l'utilisateur choisit cette option :
+    Master Card : 5430 0502 3923 6064 [bouton "Copier"]
+  → NE PAS afficher les informations de carte pour les autres méthodes
+
+IMPORTANT : Ne jamais afficher le nom "AshTechPay" ou tout autre nom de prestataire de paiement côté utilisateur. Utiliser uniquement la mention "Paiement sécurisé".
+Étape 3 — Écran de confirmation avant paiement :
+Afficher un résumé :
+- Numéro de telephone qui effectue le paiement
+- Montant
+- Méthode choisie
+- Identité ou anonyme
+F. SUIVI EN TEMPS RÉEL DU STATUT DE PAIEMENT (Comportement critique)
+Après validation du formulaire de don et initiation du paiement via l'API :
+- Afficher un compteur dégressif de 8 minutes (08:00 → 00:00) indiquant à l'utilisateur qu'il dispose de ce délai pour valider sa transaction sur son téléphone.
+- Simultanément, lancer une boucle de polling automatique qui interroge le statut de la transaction toutes les 3 secondes via le webhook/endpoint de l'API de paiement.
+- Dès que le statut retourné passe à "validé" :
+  * Mettre à jour le statut dans la base de données (côté admin ET côté utilisateur)
+  * Arrêter le polling
+  * Rediriger automatiquement vers la PAGE DE REMERCIEMENT
+- Si le statut passe à "échoué" ou si le délai de 8 minutes expire sans confirmation :
+  * Afficher un message d'erreur clair
+  * Mettre le statut à "échoué" dans la base de données
+  * Permettre à l'utilisateur de réessayer
+- Ce mécanisme doit fonctionner entièrement de manière automatique, sans action manuelle de l'utilisateur.
+G. PAGE DE REMERCIEMENT
+Afficher une page élégante avec :
+- Message en vert : "Votre transaction a été validée avec succès ✓"
+- Message de remerciement personnalisé (avec le prénom si don identifié, ou générique si anonyme)
+- Récapitulatif du don (montant, référence, date)
+- Invitation à partager
+H. CONTACT
+- Telegram : +19028120154
+- Lien Telegram : t.me/donorphelinat
+- Email : faireundon@gmail.com
+I. THÈME & LANGUE
+- Thème sombre par défaut
+- Bouton de bascule Sombre / Clair (visible sur toutes les pages utilisateur ET admin)
+- Garantir que tous les textes restent lisibles dans les deux thèmes (contraste suffisant)
+- Site en Français par défaut
+- Bouton de traduction Français / Anglais (bascule simple sur toutes les pages)
+II. PAGE ADMIN — FONCTIONNALITÉS
+A. CONNEXION
+- Page de login sécurisée (URL directe, non référencée sur le site public)
+- Identifiants de base :
+  * Login : admin
+  * Mot de passe : Admin@2024
+- L'admin peut modifier son mot de passe depuis l'interface
+- Bouton de déconnexion (logout)
+B. DASHBOARD PRINCIPAL — KPIs
+Afficher les métriques suivantes sous forme de cartes :
+- Montant total collecté
+- Montant collecté aujourd'hui
+- Montant collecté cette semaine
+- Montant collecté ce mois
+- Nombre total de donateurs
+- Nombre de dons anonymes
+- Don moyen
+- Plus gros don
+C. GRAPHIQUES (JavaScript natif uniquement, sans librairie externe)
+- Évolution des dons par jour (graphique en barres ou courbe)
+- Évolution des dons par semaine
+D. HISTORIQUE DES DONS
+Tableau complet avec les colonnes :
+- Date
+- Nom ou Anonyme
+- Pays
+- Ville
+- Montant
+- Méthode de paiement
+- Référence de paiement
+- Statut du paiement
+E. RECHERCHE
+Permettre de filtrer l'historique par :
+- Nom
+- Date
+- Montant
+F. EXPORT CSV
+Bouton "Exporter en CSV" — exporte l'intégralité des données de l'historique des dons.
+G. GESTION DE L'OBJECTIF
+L'admin peut modifier librement la somme de l'objectif de collecte (le chiffre affiché dans la barre de progression côté utilisateur se met à jour automatiquement).
+L’admin peut aussi modifier d’autres choses a toi de juger aussi 
+═══════════════════════════════════════════════
+III. CONTRAINTES TECHNIQUES STRICTES
+═══════════════════════════════════════════════
+
+FRONTEND :
+- HTML5, CSS3, JavaScript
+- Bootstrap autorisé pour le design (le site doit être visuellement soigné, moderne et professionnel)
+- Responsive design obligatoire : mobile, tablette, desktop
+- Accessibilité : boutons lisibles, contrastes corrects, navigation simple
+BACKEND :
+- PHP natif uniquement (pas de framework)
+- PDO obligatoire pour toutes les connexions à la base de données
+BASE DE DONNÉES :
+- SQL pur, compatible MySQL / WampServer
+IV. CONSIGNES DE LIVRAISON
+- Chaque section du code doit être accompagnée d'un commentaire explicatif clair.
+- Le nom du prestataire de paiement ne doit jamais apparaître côté utilisateur. Utiliser uniquement "Paiement sécurisé".
+- L'accès à la page admin ne doit jamais être mentionné ou lié depuis la partie publique du site.
+
+A noter que tu peux aussi proposer d’autres améliorations……. 
