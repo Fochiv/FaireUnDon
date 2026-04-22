@@ -61,9 +61,12 @@ Application web de collecte de dons financiers pour lutter contre la famine au C
 - Responsive mobile/tablette/desktop
 - Favicon + logo UNICEF dans header/footer
 
-### Côté admin ⏳ (à venir)
-- Connexion sécurisée (`/admin/login.php`, identifiants : `admin` / `Admin@2024`)
-- Dashboard KPIs, graphiques JS natif, historique avec filtres, export CSV, gestion objectif
+### Côté admin ✅
+- Connexion sécurisée (`/admin/login.php`, identifiants par défaut : `admin` / `Admin@2024`)
+- Dashboard : 4 KPIs (collecté, donateurs, don moyen, en attente), barre de progression, graphique 30 jours en JS natif (Canvas), top 5 pays, derniers dons
+- Liste des dons : filtres (statut, méthode, dates, recherche libre), pagination, export CSV (Excel-compatible avec BOM UTF-8)
+- Actions sur dons : validation manuelle (✓) / refus (✗) — utile pour les virements carte
+- Paramètres : modification de l'objectif, du titre/description du projet, changement de mot de passe
 
 ## Sécurité & conventions
 
