@@ -1,21 +1,14 @@
 <?php
-// Système de traduction simple FR / EN
-// Usage : t('home.hero_title')
-
+// =====================================================================
+// Système de traduction FR / EN
+// La traduction se fait côté client (instantanée, sans rechargement)
+// Le serveur sert les textes FR par défaut (initial render),
+// et le JS bascule via les attributs data-i18n
+// =====================================================================
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-// Bascule de langue via paramètre URL ?lang=fr|en
-if (isset($_GET['lang']) && in_array($_GET['lang'], ['fr', 'en'])) {
-    $_SESSION['lang'] = $_GET['lang'];
-    // Redirection pour éviter de garder le paramètre dans l'URL
-    $url = strtok($_SERVER['REQUEST_URI'], '?');
-    $params = $_GET; unset($params['lang']);
-    if ($params) $url .= '?' . http_build_query($params);
-    header('Location: ' . $url);
-    exit;
-}
-
-$LANG = $_SESSION['lang'] ?? 'fr';
+$LANG = $_COOKIE['lang'] ?? 'fr';
+if (!in_array($LANG, ['fr','en'])) $LANG = 'fr';
 
 $TRANSLATIONS = [
     'fr' => [
@@ -98,13 +91,15 @@ $TRANSLATIONS = [
 
 function t(string $key): string {
     global $TRANSLATIONS, $LANG;
-    return $TRANSLATIONS[$LANG][$key] ?? $key;
+    return $TRANSLATIONS[$LANG][$key] ?? ($TRANSLATIONS['fr'][$key] ?? $key);
 }
 
-function currentLang(): string {
-    global $LANG; return $LANG;
-}
+function currentLang(): string { global $LANG; return $LANG; }
+function otherLang():   string { global $LANG; return $LANG === 'fr' ? 'en' : 'fr'; }
 
-function otherLang(): string {
-    global $LANG; return $LANG === 'fr' ? 'en' : 'fr';
+/** Expose toutes les traductions à JavaScript pour la bascule instantanée */
+function dumpTranslationsJS(): string {
+    global $TRANSLATIONS, $LANG;
+    return 'window.__I18N = ' . json_encode($TRANSLATIONS, JSON_UNESCAPED_UNICODE)
+         . '; window.__LANG = ' . json_encode($LANG) . ';';
 }

@@ -1,34 +1,60 @@
 // ============================================================
-// UNICEF — JS public commun (thème, menu, animations)
+// UNICEF — JS public commun
+// Thème (dark/light), traduction instantanée FR/EN, animations
 // ============================================================
 
 (function () {
-  // --- Bascule de thème (sombre/clair) avec persistance via cookie ---
   const root = document.documentElement;
-  const btn = document.getElementById('themeToggle');
-  if (btn) {
-    btn.addEventListener('click', () => {
+
+  // ============ THÈME ============
+  const themeBtn = document.getElementById('themeToggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
       const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
       root.setAttribute('data-theme', next);
       document.cookie = 'theme=' + next + '; path=/; max-age=' + 60 * 60 * 24 * 365;
     });
   }
 
-  // --- Menu burger mobile ---
-  const burger = document.getElementById('burger');
-  const nav = document.querySelector('.main-nav');
-  if (burger && nav) {
-    burger.addEventListener('click', () => nav.classList.toggle('open'));
+  // ============ LANGUE — bascule instantanée sans rechargement ============
+  function applyLang(lang) {
+    if (!window.__I18N || !window.__I18N[lang]) return;
+    window.__LANG = lang;
+    document.documentElement.setAttribute('lang', lang);
+    document.cookie = 'lang=' + lang + '; path=/; max-age=' + 60 * 60 * 24 * 365;
+
+    const dict = window.__I18N[lang];
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.textContent = dict[key];
+    });
+    document.querySelectorAll('[data-i18n-attr]').forEach((el) => {
+      // format: "attr:key,attr:key"
+      el.getAttribute('data-i18n-attr').split(',').forEach((pair) => {
+        const [attr, key] = pair.split(':');
+        if (dict[key] !== undefined) el.setAttribute(attr, dict[key]);
+      });
+    });
+    // Notifie les autres scripts (formulaire, etc.)
+    document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
   }
 
-  // --- Animation des barres de progression ---
+  const langBtn = document.getElementById('langToggle');
+  if (langBtn) {
+    langBtn.addEventListener('click', () => {
+      const next = (window.__LANG || 'fr') === 'fr' ? 'en' : 'fr';
+      applyLang(next);
+    });
+  }
+
+  // ============ ANIMATIONS — barres de progression ============
   document.querySelectorAll('.progress').forEach((p) => {
     const fill = p.querySelector('span');
     const target = parseFloat(p.dataset.value || '0');
     requestAnimationFrame(() => { fill.style.width = Math.min(100, target) + '%'; });
   });
 
-  // --- Compteurs animés ---
+  // ============ ANIMATIONS — compteurs ============
   const animateCount = (el) => {
     const target = parseFloat(el.dataset.count || '0');
     const dur = 1400;
@@ -50,4 +76,9 @@
     });
   }, { threshold: 0.3 });
   document.querySelectorAll('[data-count]').forEach((el) => io.observe(el));
+
+  // ============ MENU MOBILE ============
+  const burger = document.getElementById('burger');
+  const nav = document.querySelector('.main-nav');
+  if (burger && nav) burger.addEventListener('click', () => nav.classList.toggle('open'));
 })();
